@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/text">
-        <file alias="help_zh_cn.txt">text/help_zh_cn.txt</file>
+        <file alias="help_zh_CN.txt">text/help_zh_CN.txt</file>
     </qresource>
 </RCC>

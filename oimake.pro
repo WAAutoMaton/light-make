@@ -10,7 +10,9 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    core.cpp
+    core.cpp \
+    configreader.cpp \
+    exception.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -27,4 +29,6 @@ RESOURCES += \
     rc.qrc
 
 HEADERS += \
-    core.h
+    core.h \
+    configreader.h \
+    exception.h
