@@ -12,7 +12,8 @@ TEMPLATE = app
 SOURCES += main.cpp \
     core.cpp \
     configreader.cpp \
-    exception.cpp
+    exception.cpp \
+    data.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -31,4 +32,5 @@ RESOURCES += \
 HEADERS += \
     core.h \
     configreader.h \
-    exception.h
+    exception.h \
+    data.h

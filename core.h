@@ -11,8 +11,6 @@ class Core
 {
 public:
     Core();
-    //static QVariantList& getVariable(const QString& varName);
-    static QMap<QString,QVariantList> variable;
     const static QString versionString;
 };
 
