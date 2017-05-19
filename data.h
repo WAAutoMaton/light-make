@@ -9,8 +9,11 @@ class Data
 {
 public:
     Data();
-    void setVariable(const QString& key, const QVariantList &value);
-    void setVariable(const QString& key, const QVariant &value);
+    bool setVariable(const QString& key, const QVariantList &value);
+    bool setVariable(const QString& key, const QVariant &value);
+    bool appendVariable(const QString& key, const QVariant &value);
+    bool appendVariable(const QString& key, const QVariantList &value);
+    bool deleteVariable(const QString& key);
     const QVariantList& getVariable(const QString& key);
 private:
     static QMap<QString,QVariantList> m_variable;
