@@ -48,6 +48,17 @@ int main(int argc, char *argv[])
             else throw Exception(QObject::tr("too many source files"));
         }
         if (srcURL.isEmpty()) throw Exception(QObject::tr("no source file"));
+        try
+        {
+            QFile configFile;
+            configFile.setFileName("config.oim");
+            configFile.open(QIODevice::ReadOnly);
+            QString config=readFromConfigFile(configFile);
+            interpretCode(config);
+        }catch(Exception &e)
+        {
+            throw e.setFileName("config.oim");
+        }
     }catch(Exception &e)
     {
         QTextStream err(stderr);

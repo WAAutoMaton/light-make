@@ -7,24 +7,24 @@ Data::Data()
 
 }
 
-bool Data::setVariable(const QString &key, const QVariantList& value)
+bool Data::setVariable(const QString &name, const QVariantList& value)
 {
-    m_variable[key]=value;
+    m_variable[name]=value;
     return true;
 }
 
-bool Data::setVariable(const QString &key, const QVariant &value)
+bool Data::setVariable(const QString &name, const QVariant &value)
 {
     QVariantList list;
     list.append(value);
-    m_variable[key]= list;
+    m_variable[name]= list;
     return true;
 }
 
-bool Data::appendVariable(const QString &key, const QVariant &value)
+bool Data::appendVariable(const QString &name, const QVariant &value)
 {
-    auto var=m_variable[key];
-    for(auto it: var)
+    auto var=m_variable[name];
+    for(const auto &it: var)
     {
         if (it.type()==value.type() && it==value) return false;
     }
@@ -32,19 +32,19 @@ bool Data::appendVariable(const QString &key, const QVariant &value)
     return true;
 }
 
-bool Data::appendVariable(const QString &key, const QVariantList &value)
+bool Data::appendVariable(const QString &name, const QVariantList &value)
 {
     bool isSuccess=true;
-    for(auto it : value)
+    for(const auto &it : value)
     {
-        isSuccess = appendVariable(key,it) && isSuccess;
+        isSuccess = appendVariable(name,it) && isSuccess;
     }
     return isSuccess;
 }
 
-bool Data::deleteVariable(const QString &key)
+bool Data::deleteVariable(const QString &name)
 {
-    auto it=m_variable.find(key);
+    auto it=m_variable.find(name);
     if (it!=m_variable.end())
     {
         m_variable.erase(it);
@@ -53,7 +53,24 @@ bool Data::deleteVariable(const QString &key)
     return false;
 }
 
-const QVariantList &Data::getVariable(const QString &key)
+bool Data::isVariable(const QString &name)
 {
-    return m_variable[key];
+    return m_variable.find(name)!=m_variable.end();
+}
+
+bool Data::isValueInVariable(const QString &name, const QVariant &value)
+{
+    auto it=m_variable.find(name);
+    if (it==m_variable.end()) return false;
+    auto var=*it;
+    for(const auto &i : var)
+    {
+        if (i.type()==value.type() && i==value) return true;
+    }
+    return false;
+}
+
+const QVariantList &Data::getVariable(const QString &name)
+{
+    return m_variable[name];
 }
