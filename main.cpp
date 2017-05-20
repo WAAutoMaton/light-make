@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
                 return 0;
             }
             if (srcURL.isEmpty()) srcURL=argv[i];
-            else throw Exception(QObject::tr("too many source files"));
+            else throw Exception(QObject::tr("too many source files"),-1,QString());
         }
         if (srcURL.isEmpty()) throw Exception(QObject::tr("no source file"));
         try

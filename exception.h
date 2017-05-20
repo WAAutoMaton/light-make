@@ -6,7 +6,7 @@
 class Exception
 {
 public:
-    Exception(const QString& errorMessage,int line,const QString &fileName);
+    Exception(const QString& errorMessage=QString(),int line=-1,const QString &fileName=QString());
     QString toString();
     Exception& setLine(int line);
     Exception& setFileName(const QString& fileName);

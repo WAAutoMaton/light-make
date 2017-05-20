@@ -1,1 +1,1 @@
-# oimake
+# light-make

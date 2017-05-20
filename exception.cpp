@@ -2,7 +2,7 @@
 
 #include <QString>
 
-Exception::Exception(const QString& errorMessage=QString(), int line=-1, const QString &fileName=QString())
+Exception::Exception(const QString& errorMessage, int line, const QString &fileName)
     : m_errorMessage(errorMessage),
       m_line(line),
       m_fileName(fileName)
@@ -24,5 +24,5 @@ Exception &Exception::setLine(int line)
 Exception &Exception::setFileName(const QString &fileName)
 {
     m_fileName=fileName;
-    return *this;
+    return *this
 }
