@@ -30,7 +30,8 @@ int main(int argc, char *argv[])
     qDebug()<<argc;
     try
     {
-        QString srcURL;
+        QString sourceFileURL;
+
         for(int i=1; i<argc; ++i)
         {
             qDebug()<<argv[i];
@@ -44,20 +45,34 @@ int main(int argc, char *argv[])
                 printVersion();
                 return 0;
             }
-            if (srcURL.isEmpty()) srcURL=argv[i];
+            if (sourceFileURL.isEmpty()) sourceFileURL=argv[i];
             else throw Exception(QObject::tr("too many source files"),-1,QString());
         }
-        if (srcURL.isEmpty()) throw Exception(QObject::tr("no source file"));
+
+        if (sourceFileURL.isEmpty()) throw Exception(QObject::tr("no source file"));
+
         try
         {
             QFile configFile;
-            configFile.setFileName("config.oim");
+            configFile.setFileName("config.lm");
             configFile.open(QIODevice::ReadOnly);
             QString config=readFromConfigFile(configFile);
             interpretCode(config);
         }catch(Exception &e)
         {
-            throw e.setFileName("config.oim");
+            throw e.setFileName("config.lm");
+        }
+
+        try
+        {
+            QFile sourceFile;
+            sourceFile.setFileName(sourceFileURL);
+            sourceFile.open(QIODevice::ReadOnly);
+            QString source=readFromSourceFile(sourceFile);
+            interpretCode(source);
+        }catch(Exception &e)
+        {
+            throw e.setFileName(sourceFileURL);
         }
     }catch(Exception &e)
     {

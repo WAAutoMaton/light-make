@@ -9,6 +9,9 @@
 #include <QTextStream>
 #include <QObject>
 
+/**
+ *
+ */
 QString readFromConfigFile(QFile& file)
 {
     return file.readAll();

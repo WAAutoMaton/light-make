@@ -3,7 +3,7 @@ QT -= gui
 
 CONFIG += c++11
 
-TARGET = oimake
+TARGET = lmake
 CONFIG += console
 CONFIG -= app_bundle
 

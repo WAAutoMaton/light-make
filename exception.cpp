@@ -24,5 +24,5 @@ Exception &Exception::setLine(int line)
 Exception &Exception::setFileName(const QString &fileName)
 {
     m_fileName=fileName;
-    return *this
+    return *this;
 }
