@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     core.cpp \
     configreader.cpp \
     exception.cpp \
-    data.cpp
+    data.cpp \
+    makefilewritter.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -33,4 +34,5 @@ HEADERS += \
     core.h \
     configreader.h \
     exception.h \
-    data.h
+    data.h \
+    makefilewritter.h

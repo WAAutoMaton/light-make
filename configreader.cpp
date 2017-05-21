@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QObject>
+#include <QDebug>
 
 /**
  *
@@ -19,18 +20,20 @@ QString readFromConfigFile(QFile& file)
 
 QString readFromSourceFile(QFile& file)
 {
-    //
+    return QString();
 }
 
 bool interpretCode(const QString& code)
 {
     QStringList pCode=preprocessCode(code);
+    int line=1;
     for(const QString& i: pCode)
     {
         QStringList x=i.split(' ');
-        if (x.size()<3) throw Exception(QObject::tr("Unexpected end."));
+        if (x.size()<2) throw Exception(QObject::tr("Unexpected end.")).setLine(line);
         QString variableName=x[0];
-        if (!isRightVariableName(variableName)) throw Exception(QObject::tr("Unlawful variable name"));
+        if (!isRightVariableName(variableName)) throw Exception(QObject::tr("Unlawful variable name")).setLine(line);
+        variableName = variableName.toLower();
         QString op=x[1];
         if (op=="=")
         {
@@ -49,6 +52,8 @@ bool interpretCode(const QString& code)
         {
             //
         }
+        else throw Exception(QObject::tr("Unknow operator %1").arg(op));
+        ++line;
     }
 }
 
@@ -63,6 +68,7 @@ QString deleteSpace(const QString& code)
         if (isSpace)
         {
             if (it==' ' || it=='\t') continue;
+            formattedCode.append(' ');
             if (!formattedCode.isEmpty()) formattedCode.append(it);
             isSpace=false;
         }
@@ -78,9 +84,9 @@ QString deleteSpace(const QString& code)
 QStringList preprocessCode(const QString &code)
 {
     QStringList preprocessedCode;
-    QTextStream ts;
-    ts<<code;
-    while(ts.atEnd())
+    QTextStream ts(code.toLatin1());
+    //ts<<code;
+    while(!ts.atEnd())
     {
         QString line=ts.readLine();
         int pos=line.indexOf('#');

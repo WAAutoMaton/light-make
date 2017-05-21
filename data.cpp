@@ -28,9 +28,10 @@ bool Data::setVariable(const QString &name, const QVariantList& value)
  */
 bool Data::setVariable(const QString &name, const QVariant &value)
 {
+    QString l_name=name.toLower();
     QVariantList list;
     list.append(value);
-    m_variable[name]= list;
+    m_variable[l_name]= list;
     return true;
 }
 
@@ -42,7 +43,8 @@ bool Data::setVariable(const QString &name, const QVariant &value)
  */
 bool Data::appendVariable(const QString &name, const QVariant &value)
 {
-    auto var=m_variable[name];
+    QString l_name=name.toLower();
+    auto var=m_variable[l_name];
     for(const auto &it: var)
     {
         if (it.type()==value.type() && it==value) return false;
@@ -59,10 +61,11 @@ bool Data::appendVariable(const QString &name, const QVariant &value)
  */
 bool Data::appendVariable(const QString &name, const QVariantList &value)
 {
+    QString l_name=name.toLower();
     bool isSuccess=true;
     for(const auto &it : value)
     {
-        isSuccess = appendVariable(name,it) && isSuccess;
+        isSuccess = appendVariable(l_name,it) && isSuccess;
     }
     return isSuccess;
 }
@@ -74,7 +77,8 @@ bool Data::appendVariable(const QString &name, const QVariantList &value)
  */
 bool Data::deleteVariable(const QString &name)
 {
-    auto it=m_variable.find(name);
+    QString l_name=name.toLower();
+    auto it=m_variable.find(l_name);
     if (it!=m_variable.end())
     {
         m_variable.erase(it);
@@ -90,7 +94,8 @@ bool Data::deleteVariable(const QString &name)
  */
 bool Data::isVariable(const QString &name)
 {
-    return m_variable.find(name)!=m_variable.end();
+    QString l_name=name.toLower();
+    return m_variable.find(l_name)!=m_variable.end();
 }
 
 /*!
@@ -101,7 +106,8 @@ bool Data::isVariable(const QString &name)
  */
 bool Data::isValueInVariable(const QString &name, const QVariant &value)
 {
-    auto it=m_variable.find(name);
+    QString l_name=name.toLower();
+    auto it=m_variable.find(l_name);
     if (it==m_variable.end()) return false;
     auto var=*it;
     for(const auto &i : var)
@@ -119,5 +125,15 @@ bool Data::isValueInVariable(const QString &name, const QVariant &value)
  */
 const QVariantList &Data::getVariable(const QString &name)
 {
-    return m_variable[name];
+    QString l_name=name.toLower();
+    return m_variable[l_name];
 }
+
+
+#ifdef QT_DEBUG
+// 仅供debug使用
+QMap<QString, QVariantList> Data::debugOnly_getVariableMap()
+{
+    return m_variable;
+}
+#endif

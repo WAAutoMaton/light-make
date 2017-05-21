@@ -5,9 +5,13 @@
 #include <QDebug>
 #include <cstring>
 #include <QObject>
+#include <QUrl>
+#include <QFileInfo>
+#include "data.h"
 #include "core.h"
 #include "configreader.h"
 #include "exception.h"
+#include "makefilewritter.h"
 
 void printHelp()
 {
@@ -27,14 +31,15 @@ void printVersion()
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    qDebug()<<argc;
+    //qDebug()<<argc;
     try
     {
-        QString sourceFileURL;
+        QString sourceFileString;
+        QUrl sourceFileUrl;
 
         for(int i=1; i<argc; ++i)
         {
-            qDebug()<<argv[i];
+            //qDebug()<<argv[i];
             if (std::strcmp(argv[i],"-h")==0 || std::strcmp(argv[i],"--help")==0)
             {
                 printHelp();
@@ -45,12 +50,12 @@ int main(int argc, char *argv[])
                 printVersion();
                 return 0;
             }
-            if (sourceFileURL.isEmpty()) sourceFileURL=argv[i];
-            else throw Exception(QObject::tr("too many source files"),-1,QString());
+            if (sourceFileString.isEmpty()) sourceFileString=argv[i];
+            else throw Exception(QObject::tr("too many source files"));
         }
 
-        if (sourceFileURL.isEmpty()) throw Exception(QObject::tr("no source file"));
-
+        if (sourceFileString.isEmpty()) throw Exception(QObject::tr("no source file"));
+        sourceFileUrl.setUrl(sourceFileString);
         try
         {
             QFile configFile;
@@ -63,16 +68,36 @@ int main(int argc, char *argv[])
             throw e.setFileName("config.lm");
         }
 
+        Data::appendVariable("SOURCES",sourceFileString);
+
         try
         {
+            QFileInfo sourceFileInfo(sourceFileString);
+            if (!sourceFileInfo.exists()) throw Exception("No such file").setFileName(sourceFileString);
             QFile sourceFile;
-            sourceFile.setFileName(sourceFileURL);
+            sourceFile.setFileName(sourceFileString);
             sourceFile.open(QIODevice::ReadOnly);
             QString source=readFromSourceFile(sourceFile);
             interpretCode(source);
         }catch(Exception &e)
         {
-            throw e.setFileName(sourceFileURL);
+            throw e.setFileName(sourceFileString);
+        }
+//#ifdef QT_DEBUG
+        qDebug()<<Data::debugOnly_getVariableMap().isEmpty();
+        qDebug()<<Data::debugOnly_getVariableMap();
+//#endif
+        try
+        {
+            QString make=generateMakeFile();
+            QFile makeFile;
+            makeFile.setFileName("Makefile.mf");
+            makeFile.open(QIODevice::WriteOnly);
+            makeFile.write(make.toLatin1());
+        }
+        catch(Exception &e)
+        {
+            throw e;
         }
     }catch(Exception &e)
     {
@@ -87,5 +112,6 @@ int main(int argc, char *argv[])
         return 127;
     }
 
+    return 0;
     return a.exec();
 }
