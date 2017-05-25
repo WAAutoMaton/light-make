@@ -1,3 +1,10 @@
+#include "data.h"
+#include "core.h"
+#include "configreader.h"
+#include "exception.h"
+#include "makefilewritter.h"
+#include "stringtools.h"
+
 #include <QCoreApplication>
 #include <QFile>
 #include <QTextStream>
@@ -7,11 +14,10 @@
 #include <QObject>
 #include <QUrl>
 #include <QFileInfo>
-#include "data.h"
-#include "core.h"
-#include "configreader.h"
-#include "exception.h"
-#include "makefilewritter.h"
+#include <QRegExp>
+#include <QTranslator>
+#include <QLocale>
+
 
 void printHelp()
 {
@@ -25,13 +31,38 @@ void printHelp()
 void printVersion()
 {
     QTextStream out(stdout);
-    out << QString("OI make version %1\n").arg(Core::versionString);
+    out << QString("light make version %1\n").arg(Core::versionString);
+}
+
+void loadTranlateFile(QCoreApplication *app)
+{
+    QLocale locale;
+    QString translatorFileName = "";
+    QTranslator *translator = new QTranslator(app);
+    QLocale::Country systemCountry = locale.system().country();
+    if (systemCountry==QLocale::Country::China)
+    {
+        translatorFileName = "lmake_zh_CN.qm";
+    }
+
+    if (translatorFileName!="")
+    {
+        if (translator->load(translatorFileName))
+        {
+            app->installTranslator(translator);
+        }
+        else qDebug()<<"load translator error";
+    }
+    else
+    {
+        qDebug()<<"use English";
+    }
 }
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    //qDebug()<<argc;
+    loadTranlateFile(&a);
     try
     {
         QString sourceFileString;
@@ -67,8 +98,12 @@ int main(int argc, char *argv[])
         {
             throw e.setFileName("config.lm");
         }
-
+        //sourceFileString="/tmp/a.v/a.b.c.d";
+        qDebug() <<sourceFileString;
         Data::appendVariable("SOURCES",sourceFileString);
+
+        QString noExtensionSrc=removeExtension(sourceFileString);
+        if (noExtensionSrc.isEmpty()) noExtensionSrc=sourceFileString+".cpp";
 
         try
         {
@@ -83,15 +118,19 @@ int main(int argc, char *argv[])
         {
             throw e.setFileName(sourceFileString);
         }
-//#ifdef QT_DEBUG
+#ifdef QT_DEBUG
         qDebug()<<Data::debugOnly_getVariableMap().isEmpty();
         qDebug()<<Data::debugOnly_getVariableMap();
-//#endif
+#endif
         try
         {
-            QString make=generateMakeFile();
+#ifdef Q_OS_WIN
+            QString make=generateMakeFile(noExtensionSrc+".exe");
+#else
+            QString make=generateMakeFile(noExtensionSrc);
+#endif
             QFile makeFile;
-            makeFile.setFileName("Makefile.mf");
+            makeFile.setFileName(noExtensionSrc+".Makefile");
             makeFile.open(QIODevice::WriteOnly);
             makeFile.write(make.toLatin1());
         }
@@ -108,7 +147,7 @@ int main(int argc, char *argv[])
     catch(...)
     {
         QTextStream err(stderr);
-        err<<QObject::tr("Unknow Error!");
+        err<<QObject::tr("Unknown Error!");
         return 127;
     }
 

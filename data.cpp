@@ -1,5 +1,7 @@
 #include "data.h"
 
+#include <QDebug>
+
 QMap<QString,QVariantList> Data::m_variable=QMap<QString,QVariantList>();
 
 Data::Data()
@@ -44,7 +46,7 @@ bool Data::setVariable(const QString &name, const QVariant &value)
 bool Data::appendVariable(const QString &name, const QVariant &value)
 {
     QString l_name=name.toLower();
-    auto var=m_variable[l_name];
+    auto &var=m_variable[l_name];
     for(const auto &it: var)
     {
         if (it.type()==value.type() && it==value) return false;
@@ -109,12 +111,19 @@ bool Data::isValueInVariable(const QString &name, const QVariant &value)
     QString l_name=name.toLower();
     auto it=m_variable.find(l_name);
     if (it==m_variable.end()) return false;
-    auto var=*it;
+    auto &var=*it;
     for(const auto &i : var)
     {
         if (i.type()==value.type() && i==value) return true;
     }
     return false;
+}
+
+bool Data::addVariable(const QString &name)
+{
+    if (isVariable(name)) return false;
+    m_variable[name]=QVariantList();
+    return true;
 }
 
 /*!

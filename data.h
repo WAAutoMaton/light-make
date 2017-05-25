@@ -21,7 +21,8 @@ public:
     static bool deleteVariable(const QString& name);
     static bool isVariable(const QString& name);
     static bool isValueInVariable(const QString& name, const QVariant &value);
-    static const QVariantList& getVariable(const QString& name);
+    static bool addVariable(const QString& name);
+    static const QVariantList &getVariable(const QString& name);
 
 #ifdef QT_DEBUG
     static QMap<QString, QVariantList> debugOnly_getVariableMap();
