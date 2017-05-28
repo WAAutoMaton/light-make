@@ -18,7 +18,6 @@
 #include <QTranslator>
 #include <QLocale>
 
-
 void printHelp()
 {
     QString fileURL=":/text/help_zh_CN.txt";
@@ -42,7 +41,7 @@ void loadTranlateFile(QCoreApplication *app)
     QLocale::Country systemCountry = locale.system().country();
     if (systemCountry==QLocale::Country::China)
     {
-        translatorFileName = "lmake_zh_CN.qm";
+        translatorFileName = ":/language/lmake_zh_CN.qm";
     }
 
     if (translatorFileName!="")
@@ -70,8 +69,7 @@ int main(int argc, char *argv[])
 
         for(int i=1; i<argc; ++i)
         {
-            //qDebug()<<argv[i];
-            if (std::strcmp(argv[i],"-h")==0 || std::strcmp(argv[i],"--help")==0)
+            if (std::strcmp(argv[i],"-h")==0 || strcmp(argv[i],"--help")==0)
             {
                 printHelp();
                 return 0;
@@ -90,16 +88,18 @@ int main(int argc, char *argv[])
         try
         {
             QFile configFile;
-            configFile.setFileName("config.lm");
+            configFile.setFileName(":/config/default.lm");
             configFile.open(QIODevice::ReadOnly);
-            QString config=readFromConfigFile(configFile);
+            QStringList config=readFromConfigFile(configFile);
             interpretCode(config);
         }catch(Exception &e)
         {
-            throw e.setFileName("config.lm");
+            throw e.setFileName("default.lm");
         }
         //sourceFileString="/tmp/a.v/a.b.c.d";
+#ifdef QT_DEBUG
         qDebug() <<sourceFileString;
+#endif
         Data::appendVariable("SOURCES",sourceFileString);
 
         QString noExtensionSrc=removeExtension(sourceFileString);
@@ -108,11 +108,11 @@ int main(int argc, char *argv[])
         try
         {
             QFileInfo sourceFileInfo(sourceFileString);
-            if (!sourceFileInfo.exists()) throw Exception("No such file").setFileName(sourceFileString);
+            if (!sourceFileInfo.exists()) throw Exception(QObject::tr("No such file")).setFileName(sourceFileString);
             QFile sourceFile;
             sourceFile.setFileName(sourceFileString);
             sourceFile.open(QIODevice::ReadOnly);
-            QString source=readFromSourceFile(sourceFile);
+            QStringList source=readFromSourceFile(sourceFile);
             interpretCode(source);
         }catch(Exception &e)
         {

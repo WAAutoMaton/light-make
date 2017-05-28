@@ -5,11 +5,11 @@ class QString;
 class QFile;
 class QStringList;
 
-QString readFromConfigFile(QFile& file);
-QString readFromSourceFile(QFile& file);
+QStringList readFromConfigFile(QFile& file);
+QStringList readFromSourceFile(QFile& file);
 
-QStringList preprocessCode(const QString& code);
-bool interpretCode(const QString& code);
+QStringList preprocessCode(const QStringList &code);
+bool interpretCode(const QStringList &code);
 
 
 

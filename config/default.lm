@@ -1,0 +1,5 @@
+# OI make 默认配置文件
+COMPILER = gcc  #编译器
+TEMPLATE = default  #使用默认生成模板
+STDC++ = default  #使用默认C++标准
+COMPILER_MODE = debug #使用debug模式

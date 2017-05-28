@@ -27,14 +27,14 @@ QString removeSpace(const QString& code)
     {
         if (isSpace)
         {
-            if (it==' ' || it=='\t') continue;
-            formattedCode.append(' ');
-            if (!formattedCode.isEmpty()) formattedCode.append(it);
+            if (it==' ' || it=='\t' || it==0) continue;
+            if (!formattedCode.isEmpty()) formattedCode.append(' ');
+            formattedCode.append(it);
             isSpace=false;
         }
         else
         {
-            if (it==' ' || it=='\t') isSpace=true;
+            if (it==' ' || it=='\t' || it==0) isSpace=true;
             else formattedCode.append(it);
         }
     }

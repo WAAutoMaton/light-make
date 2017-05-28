@@ -11,18 +11,54 @@
 #include <QObject>
 #include <QDebug>
 
-QString readFromConfigFile(QFile& file)
+QStringList readFromConfigFile(QFile& file)
 {
-    return file.readAll();
+    QTextStream ts(file.readAll(),QIODevice::ReadOnly);
+    QStringList code;
+    while(!ts.atEnd())
+    {
+        code.push_back(ts.readLine());
+    }
+    return code;
 }
 
-QString readFromSourceFile(QFile& file)
+QStringList readFromSourceFile(QFile& file)
 {
-    QString code=file.readAll();
-    return QString();
+    QTextStream ts(file.readAll(),QIODevice::ReadOnly);
+    QStringList code;
+    bool isLMCode=false;
+    while(!ts.atEnd())
+    {
+        QString line=ts.readLine();
+        if (isLMCode)
+        {
+            line=removeSpace(line);
+            if (line.length()>=2 && line[0]=='*' && line[1]=='/')
+            {
+                isLMCode=false;
+                code.push_back(QString());
+                continue;
+            }
+            int i;
+            for(i=0; i<line.length() && (line[i]==' ' || line[i]=='\t' || line[i]=='*'); i++);
+            line=line.mid(i);
+            code.push_back(line);
+        }
+        else
+        {
+            line=removeSpace(line);
+            if (line.left(8)=="/*+lmake")
+            {
+                isLMCode=true;
+            }
+            code.push_back(QString());
+        }
+    }
+    if (isLMCode) throw Exception("Unexpected file end.").setLine(code.size());
+    return code;
 }
 
-bool interpretCode(const QString& code)
+bool interpretCode(const QStringList& code)
 {
     QStringList pCode=preprocessCode(code);
     int line=0;
@@ -65,14 +101,12 @@ bool interpretCode(const QString& code)
 
 
 
-QStringList preprocessCode(const QString &code)
+QStringList preprocessCode(const QStringList &code)
 {
     QStringList preprocessedCode;
-    QTextStream ts(code.toLatin1());
-    //ts<<code;
-    while(!ts.atEnd())
+    for(const QString& i:code)
     {
-        QString line=ts.readLine();
+        QString line=i;
         int pos=line.indexOf('#');
         if (pos!=-1)
         {
