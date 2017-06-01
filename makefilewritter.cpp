@@ -1,7 +1,7 @@
 #include "makefilewritter.h"
 
 #include "data.h"
-#include "exception.h"
+#include "error.h"
 #include "stringtools.h"
 
 #include <QString>
@@ -11,51 +11,133 @@
 #include <QVariantList>
 #include <QVariant>
 
-QString generateMakeFile(const QString &fileName)
+QString generateMakeFile()
 {
     QString str;
     QTextStream ts(&str,QIODevice::WriteOnly);
     checkVariableSize("TEMPLATE",1,1);
     QVariantList Template = Data::getVariable("TEMPLATE");
+    QString option;
+    if (checkVariableSize("DEFINE",1,100000,Error::DO_NOTHING))
+    {
+        QVariantList var=Data::getVariable("DEFINE");
+        for(const QVariant& i:var)
+        {
+            option.append(QString(" -D%1").arg(i.toString()));
+        }
+    }
+    if (checkVariableSize("STD",1,10000,Error::DO_NOTHING))
+    {
+        QString var=Data::getVariable("STD").at(0).toString();
+        if (var=="c++11" || var=="c++0x") option.append(" -std=c++11");
+        else if(var=="c++14") option.append(" -std=c++14");
+        else if (var=="c++17" || var=="c++1z") option.append(" -std=c++17");
+        else if (var=="c++98") option.append(" -std=c++98");
+        else
+        {
+            //TODO: throw warning
+        }
+    }
+    if (checkVariableSize("DEBUG_MODE",1,10000,Error::DO_NOTHING))
+    {
+        QVariant var=Data::getVariable("DEBUG_MODE").at(0);
+        if (var.toString()=="true")
+        {
+            option.append(" -g");
+        }
+        else if (var.toString()=="false");
+        else
+        {
+            //TODO: throw warning
+        }
+
+    }
     if (Template[0].toString()=="default")
     {
+        checkVariableSize("OUTPUT",1,1);
+        const QString output=Data::getVariable("OUTPUT").at(0).toString();
         checkVariableSize("SOURCES",1,10000);
         const QVariantList& sources=Data::getVariable("SOURCES");
-        ts<<QString("%1 :").arg(fileName);
+
+        ts<<QString("%1 :").arg(output);
         for(const QVariant &i:sources)
         {
             QString objFileName=removeExtension(i.toString())+".o";
             ts<<QString(" %1").arg(objFileName);
         }
-        ts<<QString("\n\tg++ -o %1").arg(fileName);
+
+#ifdef Q_OS_WIN
+        QString stack;
+        if (checkVariableSize("STACK",1,10000,Error::DO_NOTHING))
+        {
+            bool ok;
+            int var=Data::getVariable("DEBUG_MODE").at(0).toInt(ok);
+            if (!ok)
+            {
+                //TODO: throw warning
+
+            }
+            else
+            {
+                stack=QString(" -Wl,--stack=%1").arg(var);
+            }
+        }
+#endif
+
+        ts<<QString("\n\tg++ -o %1").arg(output);
         for(const QVariant &i:sources)
         {
             QString objFileName=removeExtension(i.toString())+".o";
             ts<<QString(" %1").arg(objFileName);
         }
+#ifdef Q_OS_WIN
+            ts<<stack;
+#endif
+        ts<<option;
         ts<<'\n';
+
         for(const QVariant &i:sources)
         {
             QString objFileName=removeExtension(i.toString())+".o";
             ts<<QString("%1 : %2\n\tg++ -c %2").arg(objFileName,i.toString());
+            ts<<option;
             ts<<"\n";
         }
-        ts<<QString("clean:\n\trm %1").arg(fileName);
+#ifdef Q_OS_LINUX
+        ts<<QString("clean:\n\trm %1").arg(output);
         for(const QVariant &i:sources)
         {
             QString objFileName=removeExtension(i.toString())+".o";
             ts<<QString(" %1").arg(objFileName);
         }
+#elif define(Q_OS_WIN)
+        ts<<QString("clean:\n\tdel %1 /q").arg(output);
+        for(const QVariant &i:sources)
+        {
+            QString objFileName=removeExtension(i.toString())+".o";
+            ts<<QString("\n\tdel %1 /q").arg(objFileName);
+        }
+#endif
+
     }
-    else Exception(QObject::tr("Unknown value %2 in variable %1").arg("TEMPLATE",Template[0].toString()));
+    else Error(QObject::tr("Unknown value %2 in variable %1").arg("TEMPLATE",Template[0].toString()));
     return str;
 }
 
 
-void checkVariableSize(const QString& name,int min,int max)
+bool checkVariableSize(const QString& name,int min,int max,int mode)
 {
-    if (!Data::isVariable(name)) throw Exception(QObject::tr("varibale %1 not foud").arg(name));
+    if (mode==Error::DO_NOTHING)
+    {
+        if (!Data::isVariable(name)) return false;
+        const QVariantList& var = Data::getVariable(name);
+        if (var.size()>max) return false;
+        if (var.size()<min) return false;
+        return true;
+    }
+    if (!Data::isVariable(name)) throw Error(QObject::tr("varibale %1 not foud").arg(name));
     const QVariantList& var = Data::getVariable(name);
-    if (var.size()>max) throw Exception(QObject::tr("too much value in varibale %1").arg(name));
-    if (var.size()<min) throw Exception(QObject::tr("too few value in varibale %1").arg(name));
+    if (var.size()>max) throw Error(QObject::tr("too much value in varibale %1").arg(name));
+    if (var.size()<min) throw Error(QObject::tr("too few value in varibale %1").arg(name));
+    return true;
 }

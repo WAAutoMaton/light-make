@@ -14,10 +14,10 @@ TRANSLATIONS += lmake_zh_CN.ts
 SOURCES += main.cpp \
     core.cpp \
     configreader.cpp \
-    exception.cpp \
     data.cpp \
     makefilewritter.cpp \
-    stringtools.cpp
+    stringtools.cpp \
+    error.cpp
 
 
 # The following define makes your compiler emit warnings if you use
@@ -37,7 +37,7 @@ RESOURCES += \
 HEADERS += \
     core.h \
     configreader.h \
-    exception.h \
     data.h \
     makefilewritter.h \
-    stringtools.h
+    stringtools.h \
+    error.h

@@ -1,7 +1,7 @@
 #include "configreader.h"
 
 #include "core.h"
-#include "exception.h"
+#include "error.h"
 #include "data.h"
 #include "stringtools.h"
 #include <QString>
@@ -54,7 +54,7 @@ QStringList readFromSourceFile(QFile& file)
             code.push_back(QString());
         }
     }
-    if (isLMCode) throw Exception("Unexpected file end.").setLine(code.size());
+    if (isLMCode) throw Error("Unexpected file end.").setLine(code.size());
     return code;
 }
 
@@ -67,9 +67,9 @@ bool interpretCode(const QStringList& code)
         ++line;
         if (i.isEmpty()) continue;
         QStringList x=i.split(' ');
-        if (x.size()<2) throw Exception(QObject::tr("Unexpected end.")).setLine(line);
+        if (x.size()<2) throw Error(QObject::tr("Unexpected end.")).setLine(line);
         QString variableName=x[0];
-        if (!isRightVariableName(variableName)) throw Exception(QObject::tr("Unlawful variable name")).setLine(line);
+        if (!isRightVariableName(variableName)) throw Error(QObject::tr("Unlawful variable name")).setLine(line);
         variableName = variableName.toLower();
         QString op=x[1];
         if (op=="=")
@@ -92,9 +92,19 @@ bool interpretCode(const QStringList& code)
         }
         else if (op=="-=")
         {
-            //
+            //TODO:
         }
-        else throw Exception(QObject::tr("Unknown operator %1").arg(op)).setLine(line);
+        else if (op=="++")
+        {
+            if (x.size()>2) throw Error(QObject::tr("too many value after operator ++")).setLine(line);
+            if (!Data::isVariable(variableName)) Data::addVariable(variableName);
+        }
+        else if (op=="--")
+        {
+            if (x.size()>2) throw Error(QObject::tr("too many value after operator --")).setLine(line);
+            if (Data::isVariable(variableName)) Data::deleteVariable(variableName);
+        }
+        else throw Error(QObject::tr("Unknown operator %1").arg(op)).setLine(line);
 
     }
 }

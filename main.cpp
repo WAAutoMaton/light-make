@@ -1,7 +1,7 @@
 #include "data.h"
 #include "core.h"
 #include "configreader.h"
-#include "exception.h"
+#include "error.h"
 #include "makefilewritter.h"
 #include "stringtools.h"
 
@@ -80,10 +80,10 @@ int main(int argc, char *argv[])
                 return 0;
             }
             if (sourceFileString.isEmpty()) sourceFileString=argv[i];
-            else throw Exception(QObject::tr("too many source files"));
+            else throw Error(QObject::tr("too many source files"));
         }
 
-        if (sourceFileString.isEmpty()) throw Exception(QObject::tr("no source file"));
+        if (sourceFileString.isEmpty()) throw Error(QObject::tr("no source file"));
         sourceFileUrl.setUrl(sourceFileString);
         try
         {
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
             configFile.open(QIODevice::ReadOnly);
             QStringList config=readFromConfigFile(configFile);
             interpretCode(config);
-        }catch(Exception &e)
+        }catch(Error &e)
         {
             throw e.setFileName("default.lm");
         }
@@ -101,20 +101,23 @@ int main(int argc, char *argv[])
         qDebug() <<sourceFileString;
 #endif
         Data::appendVariable("SOURCES",sourceFileString);
-
         QString noExtensionSrc=removeExtension(sourceFileString);
         if (noExtensionSrc.isEmpty()) noExtensionSrc=sourceFileString+".cpp";
-
+#ifdef Q_OS_WIN
+        Data::setVariable("OUTPUT",noExtensionSrc+".exe");
+#else
+        Data::setVariable("OUTPUT",noExtensionSrc);
+#endif
         try
         {
             QFileInfo sourceFileInfo(sourceFileString);
-            if (!sourceFileInfo.exists()) throw Exception(QObject::tr("No such file")).setFileName(sourceFileString);
+            if (!sourceFileInfo.exists()) throw Error(QObject::tr("No such file")).setFileName(sourceFileString);
             QFile sourceFile;
             sourceFile.setFileName(sourceFileString);
             sourceFile.open(QIODevice::ReadOnly);
             QStringList source=readFromSourceFile(sourceFile);
             interpretCode(source);
-        }catch(Exception &e)
+        }catch(Error &e)
         {
             throw e.setFileName(sourceFileString);
         }
@@ -124,21 +127,17 @@ int main(int argc, char *argv[])
 #endif
         try
         {
-#ifdef Q_OS_WIN
-            QString make=generateMakeFile(noExtensionSrc+".exe");
-#else
-            QString make=generateMakeFile(noExtensionSrc);
-#endif
+            QString make=generateMakeFile();
             QFile makeFile;
             makeFile.setFileName(noExtensionSrc+".Makefile");
             makeFile.open(QIODevice::WriteOnly);
             makeFile.write(make.toLatin1());
         }
-        catch(Exception &e)
+        catch(Error &e)
         {
             throw e;
         }
-    }catch(Exception &e)
+    }catch(Error &e)
     {
         QTextStream err(stderr);
         err<<e.toString();
