@@ -103,19 +103,39 @@ QString generateMakeFile()
             ts<<option;
             ts<<"\n";
         }
-#ifdef Q_OS_LINUX
-        ts<<QString("clean:\n\trm %1").arg(output);
+        QStringList rmList;
+        rmList << output+".Makefile";
         for(const QVariant &i:sources)
         {
-            QString objFileName=removeExtension(i.toString())+".o";
-            ts<<QString(" %1").arg(objFileName);
+             rmList << removeExtension(i.toString())+".o";
+        }
+#ifdef Q_OS_LINUX
+        ts<<QString("clean:\n\trm");
+        for(const QString &i:rmList)
+        {
+            ts<<QString(" %1").arg(i);
+        }
+        ts<<"\n";
+
+        rmList << output;
+        ts<<QString("full_clean:\n\trm");
+        for(const QString &i:rmList)
+        {
+            ts<<QString(" %1").arg(i);
         }
 #elif define(Q_OS_WIN)
-        ts<<QString("clean:\n\tdel %1 /q").arg(output);
-        for(const QVariant &i:sources)
+        ts<<QString("clean:");
+        for(const QString &i:rmList)
         {
-            QString objFileName=removeExtension(i.toString())+".o";
-            ts<<QString("\n\tdel %1 /q").arg(objFileName);
+            ts<<QString("\n\tdel %1 /q").arg(i);
+        }
+        ts<<"\n";
+
+        rmList << output;
+        ts<<QString("clean:");
+        for(const QString &i:rmList)
+        {
+            ts<<QString("\n\tdel %1 /q").arg(i);
         }
 #endif
 
