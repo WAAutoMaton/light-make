@@ -50,8 +50,14 @@ QString generateMakeFile()
         {
             //TODO: throw warning
         }
-
     }
+    QString optimize="1";
+    if (checkVariableSize("OPTIMIZE",1,10000,Error::DO_NOTHING))
+    {
+        optimize=Data::getVariable("OPTIMIZE").at(0).toString();
+    }
+    option.push_back(QString(" -O%1").arg(optimize));
+
     if (Template[0].toString()=="default")
     {
         checkVariableSize("OUTPUT",1,1);
@@ -71,7 +77,7 @@ QString generateMakeFile()
         if (checkVariableSize("STACK",1,10000,Error::DO_NOTHING))
         {
             bool ok;
-            int var=Data::getVariable("DEBUG_MODE").at(0).toInt(ok);
+            int var=Data::getVariable("DEBUG_MODE").at(0).toInt(&ok);
             if (!ok)
             {
                 //TODO: throw warning
@@ -123,7 +129,7 @@ QString generateMakeFile()
         {
             ts<<QString(" %1").arg(i);
         }
-#elif define(Q_OS_WIN)
+#elif defined(Q_OS_WIN)
         ts<<QString("clean:");
         for(const QString &i:rmList)
         {
