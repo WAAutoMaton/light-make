@@ -96,7 +96,6 @@ int main(int argc, char *argv[])
         {
             throw e.setFileName("default.lm");
         }
-        //sourceFileString="/tmp/a.v/a.b.c.d";
 #ifdef QT_DEBUG
         qDebug() <<sourceFileString;
 #endif

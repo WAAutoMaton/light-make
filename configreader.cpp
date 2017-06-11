@@ -107,6 +107,7 @@ bool interpretCode(const QStringList& code)
         else throw Error(QObject::tr("Unknown operator %1").arg(op)).setLine(line);
 
     }
+    return true;
 }
 
 
@@ -131,5 +132,6 @@ QStringList preprocessCode(const QStringList &code)
 
 bool isRightVariableName(const QString &code)
 {
+    Q_UNUSED(code)
     return true;
 }
