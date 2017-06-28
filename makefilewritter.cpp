@@ -58,6 +58,15 @@ QString generateMakeFile()
     }
     option.push_back(QString(" -O%1").arg(optimize));
 
+    if (checkVariableSize("CXX_FLAGS",1,100000,Error::DO_NOTHING))
+    {
+        const QVariantList& cxx_flags=Data::getVariable("CXX_FLAGS");
+        for(const QVariant& i:cxx_flags)
+        {
+            option.push_back(" "+i.toString());
+        }
+    }
+
     if (Template[0].toString()=="default")
     {
         checkVariableSize("OUTPUT",1,1);
