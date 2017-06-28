@@ -51,6 +51,10 @@ QString generateMakeFile()
             //TODO: throw warning
         }
     }
+
+    checkVariableSize("GCC_PATH",1,1);
+    QString gccPath=Data::getVariable("GCC_PATH").at(0).toString();
+
     QString optimize="1";
     if (checkVariableSize("OPTIMIZE",1,10000,Error::DO_NOTHING))
     {
@@ -99,7 +103,7 @@ QString generateMakeFile()
         }
 #endif
 
-        ts<<QString("\n\tg++ -o %1").arg(output);
+        ts<<QString("\n\t%2 -o %1").arg(output).arg(gccPath);
         for(const QVariant &i:sources)
         {
             QString objFileName=removeExtension(i.toString())+".o";
