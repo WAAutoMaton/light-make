@@ -19,18 +19,18 @@ QString removeSpace(const QString& code)
 {
     QString formattedCode;
     bool isSpace=false;
-    for(auto it:code)
+    for(const QChar& it:code)
     {
         if (isSpace)
         {
-            if (it==' ' || it=='\t' || it==0) continue;
+            if (it==' ' || it=='\t' || it == QChar('\0')) continue;
             if (!formattedCode.isEmpty()) formattedCode.append(' ');
             formattedCode.append(it);
             isSpace=false;
         }
         else
         {
-            if (it==' ' || it=='\t' || it==0) isSpace=true;
+            if (it==' ' || it=='\t' || it == QChar('\0')) isSpace=true;
             else formattedCode.append(it);
         }
     }
