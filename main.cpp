@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
             QFile makeFile;
             makeFile.setFileName(Data::getVariable("OUTPUT").at(0).toString()+".Makefile");
             makeFile.open(QIODevice::WriteOnly);
-            makeFile.write(make.toLatin1());
+            makeFile.write(make.toLocal8Bit());
         }
         catch(Error &e)
         {
