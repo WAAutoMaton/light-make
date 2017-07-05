@@ -55,12 +55,12 @@ QString generateMakeFile()
     checkVariableSize("GCC_PATH",1,1);
     QString gccPath=Data::getVariable("GCC_PATH").at(0).toString();
 
-    QString optimize="1";
+    QString optimize=QString();
     if (checkVariableSize("OPTIMIZE",1,10000,Error::DO_NOTHING))
     {
         optimize=Data::getVariable("OPTIMIZE").at(0).toString();
     }
-    option.push_back(QString(" -O%1").arg(optimize));
+    if (!optimize.isEmpty()) option.push_back(QString(" -O%1").arg(optimize));
 
     if (checkVariableSize("CXX_FLAGS",1,100000,Error::DO_NOTHING))
     {
